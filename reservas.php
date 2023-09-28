@@ -206,8 +206,56 @@ function displayErrorMessage($partySize, $availableChairs)
             });
         });
     </script>
+<?php
+}
+
+
+function noDisponibilidad()
+{
+?>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var mensajeError = document.getElementById('divnodisponibilidad');
+            mensajeError.classList.add('divnodisponibilidad');
+            mensajeError.style.display = "flex";
+            mensajeError.style.flexDirection = "column";
+            mensajeError.style.justifyContent = "center";
+            mensajeError.style.alignItems = "center";
+            var mensajeErrorTitulo = document.createElement('h2');
+            mensajeErrorTitulo.textContent = 'NO HAY DISPONIBILIDAD';
+            mensajeError.appendChild(mensajeErrorTitulo);
+            var mensajeNumPersonas = document.createElement('p');
+            mensajeNumPersonas.textContent = 'Lo sentimos, no quedan mesas libres en la fecha seleccionada.';
+            mensajeError.appendChild(mensajeNumPersonas);
+
+
+            var divMensajeCerrar = document.createElement('div');
+            divMensajeCerrar.classList.add('divMensajeCerrar');
+            divMensajeCerrar.id = 'divMensajeCerrar';
+            mensajeError.appendChild(divMensajeCerrar);
+            var mensajeCerrar = document.createElement('p');
+            mensajeCerrar.textContent = 'CERRAR';
+            divMensajeCerrar.appendChild(mensajeCerrar);
+
+
+            // setTimeout(function() {
+            //     mensajeError.style.opacity = "0";
+            //     setTimeout(function() {
+            //         mensajeError.style.display = "none";
+            //     }, 10000);
+            // }, 4000);
+
+            var cerrarmensajeerror = document.getElementById('divMensajeCerrar');
+            cerrarmensajeerror.addEventListener('click', function() {
+                mensajeError.style.display = "none";
+            });
+        });
+    </script>
     <?php
 }
+
+
+
 
 function compruebaFecha($date, $timeToCheck)
 {
@@ -225,6 +273,23 @@ function compruebaFecha($date, $timeToCheck)
     }
 
     return $comprobante;
+}
+
+function compruebaEventos($date)
+{
+    
+    $selectedDate = $date;
+    $disponibilidad = 0;
+
+    // Array of dates to check against
+    $datesToCheck = array("2024-04-06", "2024-04-13", "2024-04-20", "2024-04-27", "2024-05-04", "2024-05-05", "2024-05-11", "2024-05-12", "2024-05-18", "2024-05-25");
+
+    // Check if the current date coincides with any of the dates in the array
+    if (in_array($selectedDate, $datesToCheck)) {
+        $disponibilidad = 1;
+    }
+
+    return $disponibilidad;
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -289,6 +354,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </script>
             <?php
             // header("Location: reservas.php");
+        } elseif (compruebaEventos($date) == 1) {
+            noDisponibilidad();
         } elseif ((compruebaFecha($date, $time) == 0)) {
             // Check if a reservation already exists with the same email, phone, and date
             $checkQuery = "SELECT * FROM bookings WHERE (contact_email = '$email' OR contact_phone = '$phone') AND reservation_date = '$date'";
